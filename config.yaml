@@ -1,0 +1,106 @@
+---
+
+- hosts: all
+  become: true
+  pre_tasks:
+
+  - name: Install Updates (Ubuntu)
+    tags: update
+    apt:
+      update_cache: yes
+    changed_when: false
+    when: ansible_distribution == "Ubuntu"
+
+  - name: Update Repository Index (CentOS)
+    tags: update
+    dnf:
+      update_cache: yes
+    changed_when: false
+    when: ansible_distribution == "CentOS"
+
+- hosts: enterprise_service
+  become: true
+  tasks:
+
+
+  - name: Install Apache and PHP for Ubuntu Server
+    tags: apache
+    apt:
+      name:
+        - apache2
+        - libapache2-mod-php
+      state: latest
+      update_cache: yes
+    when: ansible_distribution == "Ubuntu"
+
+  - name: Install Apache and PHP for CentOS servers
+    tags: apache
+    dnf:
+      name:
+        - httpd
+        - php
+      state: latest
+    when: ansible_distribution == "CentOS"
+
+  - name: Start HTTPD (CentOS)
+    tags: apache,centos,httpd
+    service:
+      name: httpd
+      state: started
+    when: ansible_distribution == "CentOS"
+
+  - name: Install Nagios for Ubuntu Server
+    tags: nagios
+    apt:
+      name: nagios4
+      state: latest
+    when: ansible_distribution == "Ubuntu"
+
+  - name: Start Nagios (Ubuntu)
+    tags: nagios
+    service:
+      name: nagios4
+      state: started
+    when: ansible_distribution == "Ubuntu"
+
+  - name: Start Nagios (CentOS)
+    tags: nagios
+    service:
+      name: nagios4
+      state: started
+    when: ansible_distribution == "Ubuntu"
+
+
+  - name: Install Nagios for CentOS server
+    tags: nagios
+    dnf:
+      name: nagios
+      state: latest
+    when: ansible_distribution == "CentOS"
+  
+  - name: Start Nagios (CentOS)
+    tags: nagios
+    service:
+      name: nagios
+      state: started
+    when: ansible_distribution == "CentOS"
+
+- hosts: monitoring_tool
+  become: true
+  tasks:
+
+  - name: Install Prometheus for Ubuntu Server
+    tags: prometheus
+    apt:
+      name: prometheus
+      state: latest
+    when: ansible_distribution == "Ubuntu"
+
+  - name: Start Prometheus (Ubuntu)
+    tags: prometheus
+    service:
+      name: prometheus
+      state: started
+    when: ansible_distribution == "Ubuntu"
+
+
